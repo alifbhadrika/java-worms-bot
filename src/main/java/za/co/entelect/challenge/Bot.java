@@ -37,14 +37,14 @@ public class Bot {
                 Worm enemyWorm = getShootableOpponent(myWorm);
                 if (enemyWorm != null) {
                     Direction direction = resolveDirection(myWorm.position, enemyWorm.position);
-                    return new SelectCommand(myWorm.id, new ShootCommand(direction));
+                    return new SelectCommand(myWorm.id, new attack(myWorm, enemyWorm));
                 }
             }
         }
         Worm enemyWorm = getShootableOpponent(currentWorm);
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-            return new ShootCommand(direction);
+            return new attack(currentWorm, enemyWorm);
         }
 
         List<Cell> surroundingBlocks = getSurroundingCells(currentWorm.position.x, currentWorm.position.y);
@@ -149,39 +149,43 @@ public class Bot {
         }
 
         return Direction.valueOf(builder.toString());
+    }
 
-    private Command attack(Worm myCurrentWorm){
-        Worm nearTarget = getShootableOpponent(myCurrentWorm);
+    private Command attack(Worm myCurrentWorm, Worm nearTarget){
+        // Prekondisi: nearTarget != null
         int x = nearTarget.position.x;
         int y = nearTarget.position.y;
-        if (nearTarget != null) {
-            if canSnowballThem(nearTarget){
-                return new SnowballCommand(x,y);
-            }
-            else if canBananaBombThem(nearTarget){
-                return new BananaCommand(x,y);
-            }
-            else{
-                Direction direction = resolveDirection(myCurrentWorm.position, nearTarget.position);
-                return new ShootCommand(direction);
-            }
+        if (canSnowballThem(nearTarget, gameState)){
+            return new SnowballCommand(x,y);
+        }
+        else if (canBananaBombThem(nearTarget, gameState)){
+            return new BananaCommand(x,y);
+        }
+        else{
+            Direction direction = resolveDirection(myCurrentWorm.position, nearTarget.position);
+            return new ShootCommand(direction);
         }
     }
-    private boolean canBananaBombThem(Worm target) {
-        return isWormStunned(target) && currentWorm.bananaBombs
-            && myCurrentWorm.bananaBombs.count > 0
-            && target.distance <= myCurrentWorm.bananaBombs.range
-            && target.distance > myCurrentWorm.bananaBombs.damageRadius * 0.75;
+    
+    private boolean canBananaBombThem(Worm target, GameState gameState) {
+        return isWormStunned(target, gameState) && currentWorm.id == 2
+            && gameState.myPlayer.worms[1].bananaBombs.count > 0
+            && target.distance <= gameState.myPlayer.worms[1].bananaBombs.range
+            && target.distance > gameState.myPlayer.worms[1].bananaBombs.damageRadius * 0.75;
     }
 
-    private boolean canSnowballThem(Worm target) {
-        return !isWormStunned(target) && myCurrentWorm.snowballs
-            && myCurrentWorm.snowballs.count > 0
-            && target.distance <= myCurrentWorm.snowballs.range
-            && target.distance > myCurrentWorm.snowballs.freezeRadius * Math.sqrt(2);
+    private boolean canSnowballThem(Worm target, GameState gameState) {
+        return !isWormStunned(target, gameState) && currentWorm.id == 3
+            && gameState.myPlayer.worms[2].snowballs.count > 0
+            && target.distance <= gameState.myPlayer.worms[2].snowballs.range
+            && target.distance > gameState.myPlayer.worms[2].freezeRadius * Math.sqrt(2);
     }
 
-    private boolean isWormStunned (Worm target){
-        return target.worm.roundsUntilUnfrozen > 0;
+    private boolean isWormStunned (Worm target, GameState gameState){
+        for(Worm cacingnya : gamestate.opponents[0].worms){
+            if(cacingnya.id == target.id) {
+                return cacingnya.roundsUntilUnfrozen > 0;
+            }
+        }
     }
 }
