@@ -29,19 +29,152 @@ public class Bot {
                 .get();
     }
 
-    public Command run() {
-        if (myPlayer.worms.length() > 0){
-            MyWorm[] myOtherWorms = myPlayer.worms;
-            myOtherWorms = Arrays.stream(myOtherWorms).filter(myWorm -> myWorm.id != currentWorm.id).toArray();
-            for (Worm myWorm : myOtherWorms) {
-                Worm enemyWorm = getShootableOpponent(myWorm);
-                if (enemyWorm != null) {
-                    Direction direction = resolveDirection(myWorm.position, enemyWorm.position);
-                    return new SelectCommand(myWorm.id, new ShootCommand(direction));
+    private Position getCupu(GameState gamestate){
+        for(Worm cacingnya : gamestate.opponents[0].worms){
+            if(cacingnya.id == 1 && cacingnya.health>0){
+                return cacingnya.position;
+            }
+        }
+        return null;
+    }
+
+    private Position toTarget(Position target){
+        Direction arahkecupu = resolveDirection(currentWorm.position, target);
+        Position baru = new Position();
+        baru.x = currentWorm.position.x + arahkecupu.x;
+        baru.y = currentWorm.position.y + arahkecupu.y;
+        return baru;
+    }
+
+    private CellType celltype (int x, int y, GameState state) {
+        Cell[][] map = state.map;
+        return map[y][x].type;
+    }
+
+    private Position CacingLainSelainCupu(Opponent lawan){
+        int cacing2jarak = 0;
+        int cacing2health = 0;
+        int cacing3jarak = 0;
+        int cacing3health = 0;
+
+        Position cacing2;
+        Position cacing3;
+
+        for (Worm cacing : lawan.worms){
+            if(cacing.id!=1){
+                if(cacing.id==2){
+                    cacing2jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, cacing.position.x, cacing.position.y);
+                    cacing2health = cacing.health;
+                    cacing2 = cacing.position;
+                } else {
+                    cacing3jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, cacing.position.x, cacing.position.y);
+                    cacing3health = cacing.health;
+                    cacing3 = cacing.position;
                 }
             }
         }
-        Worm enemyWorm = getShootableOpponent(currentWorm);
+        if(cacing2health>0 && cacing3health>0){
+            if(cacing2health<cacing3health&&cacing2jarak<cacing3jarak){
+                return cacing2;
+            } else {
+                return cacing3;
+            }
+        } else {
+            if(cacing2health>0){
+                return cacing2;
+            } else {
+                return cacing3;
+            }
+        }
+    }
+
+    private Command gasKeCupu(int idcacing) {
+        Position sicupu = getCupu(gameState);
+        if (sicupu != null){
+            Position target = toTarget(sicupu);
+            CellType nextdir = celltype(target.x, target.y, gameState);
+
+            Worm enemyWorm = getFirstWormInRange();
+            int health = currentWorm.id == 1?150:100;
+            
+            if (enemyWorm != null) {
+                if(enemyWorm.id!=1){
+                    if(currentWorm.health>=(health/2)){
+                        Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+
+                        if (idcacing != currentWorm.id){
+                            return new Select(idcacing, (new ShootCommand(direction)));
+                        }
+                        return new ShootCommand(direction);
+                        // atau attack pake strat lain
+                    }
+                } else {
+                    // gebukin si commando
+                    // atau pake strat lain
+                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                    if (idcacing != currentWorm.id){
+                        return new Select(idcacing, (new ShootCommand(direction)));
+                    }
+                    return new ShootCommand(direction);
+                }
+            }
+
+            if(nextdir == CellType.AIR){
+                if (idcacing != currentWorm.id){
+                    return new Select(idcacing, (new MoveCommand(target.x, target.y)));
+                }
+                return new MoveCommand(target.x, target.y);
+            } else if(nextdir == CellType.DIRT){
+                if (idcacing != currentWorm.id){
+                    return new Select(idcacing, (new DigCommand(target.x, target.y)));
+                }
+                return new DigCommand(target.x, target.y);
+            }
+
+            return null;
+        } else {
+            // kalo cupu udah gaada
+            Position cacinglain = CacingLainSelainCupu(opponent);
+            Position target = toTarget(cacinglain);
+            CellType nextdir = celltype(target.x, target.y, gameState);
+
+            Worm enemyWorm = getFirstWormInRange();
+            int health = currentWorm.id == 1?150:100;
+            
+            if (enemyWorm != null) {
+                if(currentWorm.health>=(health/2)){
+                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+
+                    if (idcacing != currentWorm.id){
+                        return new Select(idcacing, (new ShootCommand(direction)));
+                    }
+                    return new ShootCommand(direction);
+                        // atau attack pake strat lain
+                }
+            }
+
+            if(nextdir == CellType.AIR){
+                if (idcacing != currentWorm.id){
+                    return new Select(idcacing, (new MoveCommand(target.x, target.y)));
+                }
+                return new MoveCommand(target.x, target.y);
+            } else if(nextdir == CellType.DIRT){
+                if (idcacing != currentWorm.id){
+                    return new Select(idcacing, (new DigCommand(target.x, target.y)));
+                }
+                return new DigCommand(target.x, target.y);
+            }
+            return null;
+        }
+    }
+
+    public Command run() {
+        Position A = getCupu(gameState);
+        System.out.println(A.x +" - "+ A.y);
+        Direction z = resolveDirection(currentWorm.position, A);
+        System.out.println(z.x+"-"+z.y);
+        
+        Worm enemyWorm = getFirstWormInRange();
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
             return new ShootCommand(direction);
@@ -60,8 +193,9 @@ public class Bot {
         return new DoNothingCommand();
     }
 
-    private Worm getShootableOpponent(Worm myworm){
-        Set<String> cells = constructFireDirectionLines(myworm.weapon.range)
+    private Worm getFirstWormInRange() {
+
+        Set<String> cells = constructFireDirectionLines(currentWorm.weapon.range)
                 .stream()
                 .flatMap(Collection::stream)
                 .map(cell -> String.format("%d_%d", cell.x, cell.y))
@@ -136,9 +270,9 @@ public class Bot {
         int verticalComponent = b.y - a.y;
         int horizontalComponent = b.x - a.x;
 
-        if (verticalComponent > 0) {
+        if (verticalComponent < 0) {
             builder.append('N');
-        } else if (verticalComponent < 0) {
+        } else if (verticalComponent > 0) {
             builder.append('S');
         }
 
