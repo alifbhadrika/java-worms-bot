@@ -30,8 +30,18 @@ public class Bot {
     }
 
     public Command run() {
-
-        Worm enemyWorm = getFirstWormInRange();
+        if (myPlayer.worms.length() > 0){
+            MyWorm[] myOtherWorms = myPlayer.worms;
+            myOtherWorms = Arrays.stream(myOtherWorms).filter(myWorm -> myWorm.id != currentWorm.id).toArray();
+            for (Worm myWorm : myOtherWorms) {
+                Worm enemyWorm = getFirstWormInRange(myWorm);
+                if (enemyWorm != null) {
+                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                    return new SelectCommand(myWorm.id, new ShootCommand(direction));
+                }
+            }
+        }
+        Worm enemyWorm = getFirstWormInRange(myWorm);
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
             return new ShootCommand(direction);
@@ -50,9 +60,8 @@ public class Bot {
         return new DoNothingCommand();
     }
 
-    private Worm getFirstWormInRange() {
-
-        Set<String> cells = constructFireDirectionLines(currentWorm.weapon.range)
+    private Worm getShootableOpponent(Worm myworm){
+        Set<String> cells = constructFireDirectionLines(myworm.weapon.range)
                 .stream()
                 .flatMap(Collection::stream)
                 .map(cell -> String.format("%d_%d", cell.x, cell.y))
@@ -127,9 +136,9 @@ public class Bot {
         int verticalComponent = b.y - a.y;
         int horizontalComponent = b.x - a.x;
 
-        if (verticalComponent < 0) {
+        if (verticalComponent > 0) {
             builder.append('N');
-        } else if (verticalComponent > 0) {
+        } else if (verticalComponent < 0) {
             builder.append('S');
         }
 
