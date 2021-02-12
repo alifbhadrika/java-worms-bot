@@ -34,14 +34,14 @@ public class Bot {
             MyWorm[] myOtherWorms = myPlayer.worms;
             myOtherWorms = Arrays.stream(myOtherWorms).filter(myWorm -> myWorm.id != currentWorm.id).toArray();
             for (Worm myWorm : myOtherWorms) {
-                Worm enemyWorm = getFirstWormInRange(myWorm);
+                Worm enemyWorm = getShootableOpponent(myWorm);
                 if (enemyWorm != null) {
-                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                    Direction direction = resolveDirection(myWorm.position, enemyWorm.position);
                     return new SelectCommand(myWorm.id, new ShootCommand(direction));
                 }
             }
         }
-        Worm enemyWorm = getFirstWormInRange(myWorm);
+        Worm enemyWorm = getShootableOpponent(currentWorm);
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
             return new ShootCommand(direction);
