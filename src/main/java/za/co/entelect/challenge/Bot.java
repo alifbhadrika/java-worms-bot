@@ -37,7 +37,7 @@ public class Bot {
                 Worm enemyWorm = getShootableOpponent(myWorm);
                 if (enemyWorm != null) {
                     Direction direction = resolveDirection(myWorm.position, enemyWorm.position);
-                    return new SelectCommand(myWorm.id, new ShootCommand(direction));
+                    return new SelectCommand(myWorm, new ShootCommand(direction));
                 }
             }
         }
