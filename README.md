@@ -1,11 +1,5 @@
-# Java Worms Bot
-> Bot is created to compete in Worms Game by Entellect Challenge 2019 
+# Java starter bot
 
-## Tugas Besar STIMA IF2211
-### Authors
-1. Dzaki Muhammad / 13519049
-2. Alif Bhadrika Parikesit / 13519186
-3. Rezda Abdullah Fachrezzi / 13519194 
 ## Environment requirements
 
 Install the Java SE Development Kit 8 for your environment here: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
