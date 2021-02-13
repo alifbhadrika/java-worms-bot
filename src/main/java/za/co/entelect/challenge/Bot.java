@@ -31,12 +31,22 @@ public class Bot {
 
     private Position getCupu(GameState gamestate){
         for(Worm cacingnya : gamestate.opponents[0].worms){
-            if(cacingnya.id == 1 && cacingnya.health>0){
+            if(cacingnya.id == 1 && (cacingnya.health>0&&cacingnya.health<=150)){
                 return cacingnya.position;
             }
         }
         return null;
+    
+    
     }
+    /*private Worm getCupu2(GameState gamestate){
+        for(Worm cacingnya : gamestate.opponents[0].worms){
+            if(cacingnya.id == 1 && (cacingnya.health>0&&cacingnya.health<=150)){
+                return cacingnya;
+            }
+        }
+        return null;
+    }*/
 
     private Position toTarget(Position target){
         Direction arahkecupu = resolveDirection(currentWorm.position, target);
@@ -52,44 +62,26 @@ public class Bot {
     }
 
     private Position CacingLainSelainCupu(Opponent lawan){
-        int cacing2jarak = 0;
-        int cacing2health = 0;
-        int cacing3jarak = 0;
-        int cacing3health = 0;
+        int cacing2jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, lawan.worms[1].position.x, lawan.worms[1].position.y);
+        //int cacing2health = lawan.worms[1].health;
+        int cacing3jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, lawan.worms[2].position.x, lawan.worms[2].position.y);
+        //int cacing3health =  lawan.worms[2].health;
 
-        Position cacing2;
-        Position cacing3;
+        Position cacing2 = lawan.worms[1].position;
+        Position cacing3 = lawan.worms[2].position;
 
-        for (Worm cacing : lawan.worms){
-            if(cacing.id!=1){
-                if(cacing.id==2){
-                    cacing2jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, cacing.position.x, cacing.position.y);
-                    cacing2health = cacing.health;
-                    cacing2 = cacing.position;
-                } else {
-                    cacing3jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, cacing.position.x, cacing.position.y);
-                    cacing3health = cacing.health;
-                    cacing3 = cacing.position;
-                }
-            }
-        }
-        if(cacing2health>0 && cacing3health>0){
-            if(cacing2health<cacing3health&&cacing2jarak<cacing3jarak){
-                return cacing2;
-            } else {
-                return cacing3;
-            }
+        if(cacing2jarak<cacing3jarak){
+            return cacing2;
         } else {
-            if(cacing2health>0){
-                return cacing2;
-            } else {
-                return cacing3;
-            }
+            return cacing3;
         }
     }
 
-    private Command gasKeCupu(int idcacing) {
+    private Command gasKeCupu(){
         Position sicupu = getCupu(gameState);
+        //Worm sicupu2 = getCupu2(gameState);
+        //System.out.println("ada cupu= "+(sicupu2==null?"gk":sicupu2.health));
+        //System.out.println("ada cupu= "+(getCupu2(gameState)==null?"gk":getCupu2(gameState).health));
         if (sicupu != null){
             Position target = toTarget(sicupu);
             CellType nextdir = celltype(target.x, target.y, gameState);
@@ -99,35 +91,37 @@ public class Bot {
             
             if (enemyWorm != null) {
                 if(enemyWorm.id!=1){
-                    if(currentWorm.health>=(health/2)){
+                    if(currentWorm.health>=(3*health/4)){
                         Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
 
-                        if (idcacing != currentWorm.id){
+                        /*if (idcacing != currentWorm.id){
                             return new Select(idcacing, (new ShootCommand(direction)));
-                        }
+                        }*/
                         return new ShootCommand(direction);
                         // atau attack pake strat lain
                     }
                 } else {
                     // gebukin si commando
                     // atau pake strat lain
-                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-                    if (idcacing != currentWorm.id){
-                        return new Select(idcacing, (new ShootCommand(direction)));
+                    if(enemyWorm.health>0){
+                        Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                        /*if (idcacing != currentWorm.id){
+                            return new Select(idcacing, (new ShootCommand(direction)));
+                        }*/
+                        return new ShootCommand(direction);
                     }
-                    return new ShootCommand(direction);
                 }
             }
 
             if(nextdir == CellType.AIR){
-                if (idcacing != currentWorm.id){
+                /*if (idcacing != currentWorm.id){
                     return new Select(idcacing, (new MoveCommand(target.x, target.y)));
-                }
+                }*/
                 return new MoveCommand(target.x, target.y);
             } else if(nextdir == CellType.DIRT){
-                if (idcacing != currentWorm.id){
+                /*if (idcacing != currentWorm.id){
                     return new Select(idcacing, (new DigCommand(target.x, target.y)));
-                }
+                }*/
                 return new DigCommand(target.x, target.y);
             }
 
@@ -142,26 +136,26 @@ public class Bot {
             int health = currentWorm.id == 1?150:100;
             
             if (enemyWorm != null) {
-                if(currentWorm.health>=(health/2)){
+                if(currentWorm.health>=(3*health/4)){
                     Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
 
-                    if (idcacing != currentWorm.id){
+                    /*if (idcacing != currentWorm.id){
                         return new Select(idcacing, (new ShootCommand(direction)));
-                    }
+                    }*/
                     return new ShootCommand(direction);
                         // atau attack pake strat lain
                 }
             }
 
             if(nextdir == CellType.AIR){
-                if (idcacing != currentWorm.id){
+                /*if (idcacing != currentWorm.id){
                     return new Select(idcacing, (new MoveCommand(target.x, target.y)));
-                }
+                }*/
                 return new MoveCommand(target.x, target.y);
             } else if(nextdir == CellType.DIRT){
-                if (idcacing != currentWorm.id){
+                /*if (idcacing != currentWorm.id){
                     return new Select(idcacing, (new DigCommand(target.x, target.y)));
-                }
+                }*/
                 return new DigCommand(target.x, target.y);
             }
             return null;
@@ -169,12 +163,17 @@ public class Bot {
     }
 
     public Command run() {
-        Position A = getCupu(gameState);
-        System.out.println(A.x +" - "+ A.y);
-        Direction z = resolveDirection(currentWorm.position, A);
-        System.out.println(z.x+"-"+z.y);
+        //Position A = getCupu(gameState);
+        //System.out.println(A.x +" - "+ A.y);
+        //Direction z = resolveDirection(currentWorm.position, A);
+        //System.out.println(z.x+"-"+z.y);
+        Command gas = gasKeCupu();
+
+        if(gas!=null){
+            return gas;
+        }
         
-        Worm enemyWorm = getFirstWormInRange();
+        /*Worm enemyWorm = getFirstWormInRange();
         if (enemyWorm != null) {
             Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
             return new ShootCommand(direction);
@@ -188,7 +187,7 @@ public class Bot {
             return new MoveCommand(block.x, block.y);
         } else if (block.type == CellType.DIRT) {
             return new DigCommand(block.x, block.y);
-        }
+        }*/
 
         return new DoNothingCommand();
     }
