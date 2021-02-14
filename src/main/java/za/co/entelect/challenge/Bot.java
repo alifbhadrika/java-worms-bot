@@ -171,15 +171,15 @@ private Command attack(Worm myCurrentWorm, Worm nearTarget){
 private boolean canBananaBombThem(Worm target, GameState gameState) {
     return isWormStunned(target, gameState) && currentWorm.id == 2
         && gameState.myPlayer.worms[1].bananaBombs.count > 0
-        && target.distance <= gameState.myPlayer.worms[1].bananaBombs.range
-        && target.distance > gameState.myPlayer.worms[1].bananaBombs.damageRadius * 0.75;
+        && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x, target.position.y) <= gameState.myPlayer.worms[1].bananaBombs.range
+        && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x > gameState.myPlayer.worms[1].bananaBombs.damageRadius * 0.75;
 }
 
 private boolean canSnowballThem(Worm target, GameState gameState) {
     return !isWormStunned(target, gameState) && currentWorm.id == 3
         && gameState.myPlayer.worms[2].snowballs.count > 0
-        && target.distance <= gameState.myPlayer.worms[2].snowballs.range
-        && target.distance > gameState.myPlayer.worms[2].freezeRadius * Math.sqrt(2);
+        && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x <= gameState.myPlayer.worms[2].snowballs.range
+        && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x > gameState.myPlayer.worms[2].freezeRadius * Math.sqrt(2);
 }
 
 private boolean isWormStunned (Worm target, GameState gameState){
