@@ -91,14 +91,16 @@ public class Bot {
             
             if (enemyWorm != null) {
                 if(enemyWorm.id!=1){
-                    if(currentWorm.health>=(3*health/4)){
-                        Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                    if(enemyWorm.health>0){
+                        if(currentWorm.health>=(3*health/4)){
+                            Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
 
-                        /*if (idcacing != currentWorm.id){
-                            return new Select(idcacing, (new ShootCommand(direction)));
-                        }*/
-                        return new ShootCommand(direction);
-                        // atau attack pake strat lain
+                            /*if (idcacing != currentWorm.id){
+                                return new Select(idcacing, (new ShootCommand(direction)));
+                            }*/
+                            return new ShootCommand(direction);
+                            // atau attack pake strat lain
+                        }
                     }
                 } else {
                     // gebukin si commando
@@ -133,17 +135,15 @@ public class Bot {
             CellType nextdir = celltype(target.x, target.y, gameState);
 
             Worm enemyWorm = getFirstWormInRange();
-            int health = currentWorm.id == 1?150:100;
             
             if (enemyWorm != null) {
-                if(currentWorm.health>=(3*health/4)){
-                    Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
+                if(enemyWorm.health>0){
+                        Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
 
-                    /*if (idcacing != currentWorm.id){
-                        return new Select(idcacing, (new ShootCommand(direction)));
-                    }*/
-                    return new ShootCommand(direction);
-                        // atau attack pake strat lain
+                        /*if (idcacing != currentWorm.id){
+                            return new Select(idcacing, (new ShootCommand(direction)));
+                        }*/
+                        return new ShootCommand(direction);
                 }
             }
 
