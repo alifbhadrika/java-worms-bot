@@ -51,17 +51,22 @@ public class Bot {
         Cell[][] map = state.map;
         return map[y][x].type;
     }
-
     private Position CacingLainSelainCupu(Opponent lawan){
+        if(lawan.worms[1].health<=0){
+            return lawan.worms[2].position;
+        } else if(lawan.worms[2].health<=0){
+            return lawan.worms[1].position;
+        }
+        
         int cacing2jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, lawan.worms[1].position.x, lawan.worms[1].position.y);
-        //int cacing2health = lawan.worms[1].health;
+        int cacing2health = lawan.worms[1].health;
         int cacing3jarak = euclideanDistance(currentWorm.position.x, currentWorm.position.y, lawan.worms[2].position.x, lawan.worms[2].position.y);
-        //int cacing3health =  lawan.worms[2].health;
+        int cacing3health =  lawan.worms[2].health;
 
         Position cacing2 = lawan.worms[1].position;
         Position cacing3 = lawan.worms[2].position;
 
-        if(cacing2jarak<cacing3jarak){
+        if(cacing2jarak<cacing3jarak || cacing2health<cacing3health){
             return cacing2;
         } else {
             return cacing3;
@@ -70,18 +75,10 @@ public class Bot {
 
     private Command gasKeCupu(){
         Position sicupu = getCupu(gameState);
-        //Worm sicupu2 = getCupu2(gameState);
-        //System.out.println("ada cupu= "+(sicupu2==null?"gk":sicupu2.health));
-        //System.out.println("ada cupu= "+(getCupu2(gameState)==null?"gk":getCupu2(gameState).health));
+        
         if (sicupu != null){
             Position target = toTarget(sicupu);
             CellType nextdir = celltype(target.x, target.y, gameState);
-            /*System.out.println(target.x+"-"+target.y);
-            if(nextdir == CellType.AIR){
-                System.out.println("angin");
-            }if(nextdir == CellType.DIRT){
-                System.out.println("tanah");
-            }*/
 
             Worm enemyWorm = getShootableOpponent(currentWorm);
             int health = currentWorm.id == 1?150:100;
@@ -90,37 +87,21 @@ public class Bot {
                 if(enemyWorm.id!=1){
                     if(enemyWorm.health>0){
                         if(currentWorm.health>=(3*health/4)){
-                            //Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-
-                            /*if (idcacing != currentWorm.id){
-                                return new Select(idcacing, (new ShootCommand(direction)));
-                            }*/
                             return attack(currentWorm, enemyWorm);
-                            // atau attack pake strat lain
                         }
                     }
                 } else {
                     // gebukin si commando
                     // atau pake strat lain
                     if(enemyWorm.health>0){
-                        //Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-                        /*if (idcacing != currentWorm.id){
-                            return new Select(idcacing, (new ShootCommand(direction)));
-                        }*/
                         return attack(currentWorm, enemyWorm);
                     }
                 }
             }
 
             if(nextdir == CellType.AIR){
-                /*if (idcacing != currentWorm.id){
-                    return new Select(idcacing, (new MoveCommand(target.x, target.y)));
-                }*/
                 return new MoveCommand(target.x, target.y);
             } else if(nextdir == CellType.DIRT){
-                /*if (idcacing != currentWorm.id){
-                    return new Select(idcacing, (new DigCommand(target.x, target.y)));
-                }*/
                 return new DigCommand(target.x, target.y);
             }
 
@@ -130,112 +111,33 @@ public class Bot {
             Position cacinglain = CacingLainSelainCupu(opponent);
             Position target = toTarget(cacinglain);
             CellType nextdir = celltype(target.x, target.y, gameState);
-            /*System.out.println(target.x+"-"+target.y);
-            if(nextdir == CellType.AIR){
-                System.out.println("angin");
-            }if(nextdir == CellType.DIRT){
-                System.out.println("tanah");
-            }*/
-
+            
             Worm enemyWorm = getShootableOpponent(currentWorm);
 
             if (enemyWorm != null) {
                 if(enemyWorm.health>0){
-                        // Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-
-                        /*if (idcacing != currentWorm.id){
-                            return new Select(idcacing, (new ShootCommand(direction)));
-                        }*/
-                        return attack(currentWorm, enemyWorm);
+                    return attack(currentWorm, enemyWorm);
                 }
             }
 
             if(nextdir == CellType.AIR){
-                /*if (idcacing != currentWorm.id){
-                    return new Select(idcacing, (new MoveCommand(target.x, target.y)));
-                }*/
                 return new MoveCommand(target.x, target.y);
             } else if(nextdir == CellType.DIRT){
-                /*if (idcacing != currentWorm.id){
-                    return new Select(idcacing, (new DigCommand(target.x, target.y)));
-                }*/
                 return new DigCommand(target.x, target.y);
             }
             return null;
         }
     }
     public Command run() {
-        //Position A = getCupu(gameState);
-        //System.out.println(A.x +" - "+ A.y);
-        //Direction z = resolveDirection(currentWorm.position, A);
-        //System.out.println(z.x+"-"+z.y);
-        // public Command run() {
-        // if (gameState.myPlayer.worms.length > 0){
-        //     Worm[] myOtherWorms = gameState.myPlayer.worms;
-        //     myOtherWorms = Arrays.stream(myOtherWorms).filter(myWorm -> myWorm.id != currentWorm.id).toArray(Worm[]::new);
-        //     for (Worm myWorm : myOtherWorms) {
-        //         Worm enemyWorm = getShootableOpponent(gameState.myPlayer.worms[myWorm.id-1]);
-        //         if (enemyWorm != null) {
-        //             return new SelectCommand(gameState.myPlayer.worms[myWorm.id-1], attack(gameState.myPlayer.worms[myWorm.id-1], enemyWorm));
-        //         }
-        //     }
-        // }
-        // Worm enemyWorm = getShootableOpponent(currentWorm);
-        // if (enemyWorm != null) {
-        //     return attack(currentWorm, enemyWorm);
-        // }
         Command gas = gasKeCupu();
 
         if(gas!=null){
             return gas;
         }
-
-        /*Worm enemyWorm = getFirstWormInRange();
-        if (enemyWorm != null) {
-            Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-            return new ShootCommand(direction);
-        @@ -55,13 +187,14 @@ public Command run() {
-            return new MoveCommand(block.x, block.y);
-        } else if (block.type == CellType.DIRT) {
-            return new DigCommand(block.x, block.y);
-        }
-        }*/
-
         return new DoNothingCommand();
     }
-    // public Command run() {
-    //     if (myPlayer.worms.length() > 0){
-    //         MyWorm[] myOtherWorms = myPlayer.worms;
-    //         myOtherWorms = Arrays.stream(myOtherWorms).filter(myWorm -> myWorm.id != currentWorm.id).toArray();
-    //         for (Worm myWorm : myOtherWorms) {
-    //             Worm enemyWorm = getShootableOpponent(myWorm);
-    //             if (enemyWorm != null) {
-    //                 Direction direction = resolveDirection(myWorm.position, enemyWorm.position);
-    //                 return new SelectCommand(myWorm.id, new attack(myWorm, enemyWorm));
-    //             }
-    //         }
-    //     }
-    //     Worm enemyWorm = getShootableOpponent(currentWorm);
-    //     if (enemyWorm != null) {
-    //         Direction direction = resolveDirection(currentWorm.position, enemyWorm.position);
-    //         return new attack(currentWorm, enemyWorm);
-    //     }
-
-    //     List<Cell> surroundingBlocks = getSurroundingCells(currentWorm.position.x, currentWorm.position.y);
-    //     int cellIdx = random.nextInt(surroundingBlocks.size());
-
-    //     Cell block = surroundingBlocks.get(cellIdx);
-    //     if (block.type == CellType.AIR) {
-    //         return new MoveCommand(block.x, block.y);
-    //     } else if (block.type == CellType.DIRT) {
-    //         return new DigCommand(block.x, block.y);
-    //     }
-
-    //     return new DoNothingCommand();
-    // }
-
     private Worm getShootableOpponent(MyWorm myworm){
-        Set<String> cells = constructFireDirectionLines(myworm.weapon.range)
+        Set<String> cells = constructCellDirectionLines(myworm.weapon.range)
                 .stream()
                 .flatMap(Collection::stream)
                 .map(cell -> String.format("%d_%d", cell.x, cell.y))
@@ -251,7 +153,7 @@ public class Bot {
         return null;
     }
 
-    private List<List<Cell>> constructFireDirectionLines(int range) {
+    private List<List<Cell>> constructCellDirectionLines(int range) {
         List<List<Cell>> directionLines = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             List<Cell> directionLine = new ArrayList<>();
@@ -279,20 +181,6 @@ public class Bot {
         }
 
         return directionLines;
-    }
-
-    private List<Cell> getSurroundingCells(int x, int y) {
-        ArrayList<Cell> cells = new ArrayList<>();
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                // Don't include the current position
-                if (i != x && j != y && isValidCoordinate(i, j)) {
-                    cells.add(gameState.map[j][i]);
-                }
-            }
-        }
-
-        return cells;
     }
 
     private int euclideanDistance(int aX, int aY, int bX, int bY) {
@@ -326,9 +214,6 @@ public class Bot {
     }
     
     private Command attack(Worm myCurrentWorm, Worm nearTarget){
-        // Prekondisi: nearTarget != null
-        // int y = nearTarget.position.y;
-        // int x = nearTarget.position.x;
         if (canBananaBombThem(nearTarget, gameState)){
             return new BananaCommand(nearTarget);
         }
@@ -345,7 +230,7 @@ public class Bot {
         return  isWormStunned(target, gameState) && currentWorm.id == 2
                 && gameState.myPlayer.worms[1].bananaBombs.count > 0
                 && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x, target.position.y) <= gameState.myPlayer.worms[1].bananaBombs.range
-                // && !isBananaBombtoAlly(target, gameState)
+                && !isBananaBombtoAlly(target, gameState)
                 ;
     }
 
@@ -353,7 +238,7 @@ public class Bot {
         return !isWormStunned(target, gameState) && currentWorm.id == 3
                 && gameState.myPlayer.worms[2].snowballs.count > 0
                 && euclideanDistance(currentWorm.position.x, currentWorm.position.y, target.position.x, target.position.y)<= gameState.myPlayer.worms[2].snowballs.range
-                // && !isSnowballtoAlly(target,gameState)
+                && !isSnowballtoAlly(target,gameState)
                 ;
     }
 
@@ -395,7 +280,6 @@ public class Bot {
         }
         return false;
     }
-
 }
 
 
